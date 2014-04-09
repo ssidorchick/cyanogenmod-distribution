@@ -5,34 +5,42 @@ angular.module('cyanogenmodDistributionApp')
     $(function() {
       $.getJSON('scripts/data-04-07-2014.json', function(data) {
         var version = data.result.version;
-        var downloads = _.map(version, function(v) { return v[0]; });
+        var downloads = _.chain(version)
+                         .map(function(v) { return v[0]; })
+                         .filter(function(value) { return value > 10000; })
+                         .value();
 
-        var width = 500,
-            barHeight = 20;
+        var width = 960,
+            height = 500;
 
-        var x = d3.scale.linear()
-          .domain([0, d3.max(downloads)])
-          .range([0, width]);
+        var y = d3.scale.linear()
+            .domain([0, d3.max(downloads)])
+            .range([height, 0]);
 
         var chart = d3.select('.chart')
-          .attr('width', width + 100)
-          .attr('height', barHeight * downloads.length);
+            .attr('width', width)
+            .attr('height', height);
+
+        var barWidth = width / downloads.length;
 
         var bar = chart.selectAll('g')
-          .data(downloads)
-          .enter()
-          .append('g')
-          .attr('transform', function(d, i) { return 'translate(0, ' + i * barHeight + ')'; });
+            .data(downloads)
+          .enter().append('g')
+            .attr('transform', function(d, i) { return 'translate(' + i * barWidth + ', 0)'; });
 
         bar.append('rect')
-          .attr('width', function(d) { return x(d); })
-          .attr('height', barHeight - 1);
+            .attr('y', function(d) { return y(d); })
+            .attr('height', function(d) { return height - y(d); })
+            .attr('width', barWidth - 1);
 
         bar.append('text')
-          .attr('x', function(d) { return x(d) + 50; })
-          .attr('y', barHeight / 2)
-          .attr('dy', '.35em')
-          .text(function(d) { return d; });
+            .attr('x', barWidth / 2)
+            .attr('y', function(d) { return y(d) + 3; })
+            .attr('transform', function(d) {
+              return 'rotate(90 ' + (barWidth / 2) + ',' + (y(d) - 3) + ')';
+            })
+            .attr('dy', '.35em')
+            .text(function(d) { return d; });
       });
     });
   });
