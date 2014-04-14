@@ -10,9 +10,9 @@ angular.module('cyanogenmodDistributionApp')
                       .filter(function(build) { return build.downloads > 10000; })
                       .value();
 
-        var margin = { top: 50, right: 30, bottom: 30, left: 40 },
+        var margin = { top: 50, right: 30, bottom: 90, left: 60 },
             width = 960,
-            height = 500;
+            height = 400;
 
         var x = d3.scale.ordinal()
             .rangeRoundBands([0, width], .1)
@@ -21,6 +21,14 @@ angular.module('cyanogenmodDistributionApp')
         var y = d3.scale.linear()
             .domain([0, d3.max(builds, function(d) { return d.downloads; })])
             .range([height, 0]);
+
+        var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient('bottom');
+
+        var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient('left');
 
         var chart = d3.select('.chart')
             .attr('width', width + margin.left + margin.right)
@@ -46,6 +54,20 @@ angular.module('cyanogenmodDistributionApp')
             })
             .attr('dy', '.35em')
             .text(function(d) { return d.downloads; });
+
+        chart.append('g')
+            .attr('class', 'x axis')
+            .attr('transform', 'translate(0, ' + height + ')')
+            .call(xAxis)
+            .selectAll('text')
+                .style('text-anchor', 'end')
+                .attr('dx', '-.8em')
+                .attr('dy', '-.6em')
+                .attr('transform', 'rotate(-90)');
+
+        chart.append('g')
+            .attr('class', 'y axis')
+            .call(yAxis);
       });
     });
   });
