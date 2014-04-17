@@ -10,8 +10,8 @@ angular.module('cyanogenmodDistributionApp')
                       .filter(function(build) { return build.downloads > 10000; })
                       .value();
 
-        var margin = { top: 50, right: 30, bottom: 90, left: 60 },
-            width = 960,
+        var margin = { top: 50, right: 0, bottom: 90, left: 60 },
+            width = $('.container').width() - margin.left - margin.right,
             height = 400;
 
         var x = d3.scale.ordinal()
@@ -47,12 +47,13 @@ angular.module('cyanogenmodDistributionApp')
             .attr('width', x.rangeBand());
 
         bar.append('text')
+            .style('text-anchor', 'end')
             .attr('x', x.rangeBand() / 2)
             .attr('y', function(d) { return y(d.downloads) + 3; })
             .attr('transform', function(d) {
               return 'rotate(90 ' + (x.rangeBand() / 2) + ',' + (y(d.downloads) - 3) + ')';
             })
-            .attr('dy', '.35em')
+            .attr('dy', '-.1em')
             .text(function(d) { return d.downloads; });
 
         chart.append('g')
