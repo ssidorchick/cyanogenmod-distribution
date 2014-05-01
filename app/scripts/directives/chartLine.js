@@ -8,7 +8,7 @@ angular.module('cyanogenmodDistributionApp')
         data: '='
       },
       link: function(scope, element, attrs) {
-        var margin = { top: 50, right: 0, bottom: 90, left: 60 },
+        var margin = { top: 50, right: 60, bottom: 90, left: 60 },
             width = element.width() - margin.left - margin.right,
             height = 400;
 
@@ -29,32 +29,21 @@ angular.module('cyanogenmodDistributionApp')
             return;
           }
 
-          data = _.chain(data)
+          var versions = _.chain(data)
+            .each(function(d) {
+              d.date = parseDate(d.date);
+            })
             .map(function(d) {
-              var result =  _.chain(d.version)
-                .map(function(d) {
-                  return [d.name, d.downloads];
-                })
-                .object()
-                .value();
-              result.date = parseDate(d.date);
-
-              return result;
+              return _.map(d.version, function(v) {
+                return { name: v.name, downloads: v.downloads, date: d.date };
+              });
+            })
+            .flatten()
+            .groupBy(function(d) { return d.name; })
+            .map(function(d, key) {
+              return { name: key, values: d };
             })
             .value();
-
-          var color = d3.scale.category20();
-
-          color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
-
-          var versions = color.domain().map(function(name) {
-            return {
-              name: name,
-              values: data.map(function(d) {
-                return { date: d.date, downloads: +d[name]};
-              })
-            };
-          });
 
           var x = d3.scale.ordinal()
               .domain(d3.extent(data, function(d) { return d.date; }))
@@ -88,13 +77,7 @@ angular.module('cyanogenmodDistributionApp')
 
           chart.append("g")
               .attr("class", "y axis")
-              .call(yAxis)
-            .append("text")
-              .attr("transform", "rotate(-90)")
-              .attr("y", 6)
-              .attr("dy", ".71em")
-              .style("text-anchor", "end")
-              .text("Downloads");
+              .call(yAxis);
 
           var version = chart.selectAll(".version")
               .data(versions)
@@ -104,7 +87,7 @@ angular.module('cyanogenmodDistributionApp')
           version.append("path")
               .attr("class", "line")
               .attr("d", function(d) { return line(d.values); })
-              .style("stroke", function(d) { return color(d.name); });
+              .style("stroke", function(d) { return '#000'; });
 
           version.append("text")
               .datum(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
