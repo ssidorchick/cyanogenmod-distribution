@@ -14,12 +14,12 @@ angular.module('cyanogenmodDistributionApp')
         $scope.barData = builds;
       });
 
-    var data0407 = $http.get('scripts/data-04-07-2014.json'),
-        data0422 = $http.get('scripts/data-04-22-2014.json'),
+    var data0422 = $http.get('scripts/data-04-22-2014.json'),
         data0426 = $http.get('scripts/data-04-26-2014.json'),
-        data0501 = $http.get('scripts/data-05-01-2014.json');
+        data0501 = $http.get('scripts/data-05-01-2014.json'),
+        data0502 = $http.get('scripts/data-05-02-2014.json');
 
-    $q.all([data0407, data0422, data0426, data0501]).then(function(data) {
+    $q.all([data0422, data0426, data0501, data0502]).then(function(data) {
       var builds = _.chain(data)
         .map(function(d) { return { version: d.data.result.version, date: d.data.result.date }; })
         .each(function(d) {
