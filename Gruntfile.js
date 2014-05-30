@@ -25,6 +25,30 @@ module.exports = function (grunt) {
       dist: 'dist'
     },
 
+    express: {
+      options: {
+        port: process.env.PORT || 9000
+      },
+      dev: {
+        options: {
+          script: 'server.js',
+          debug: true
+        }
+      },
+      prod: {
+        options: {
+          script: 'dist/server.js',
+          node_env: 'production'
+        }
+      }
+    },
+
+    open: {
+      server: {
+        url: 'http://localhost:<%= express.options.port %>'
+      }
+    },
+
     // Watches files for changes and runs tasks based on the changed files
     watch: {
       bower: {
@@ -58,6 +82,17 @@ module.exports = function (grunt) {
           '.tmp/styles/{,*/}*.css',
           '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
         ]
+      },
+      express: {
+        files: [
+          'server.js',
+          'lib/**/*.{js,json}'
+        ],
+        tasks: ['newer:jshint:server', 'express:dev', 'wait'],
+        options: {
+          livereload: true,
+          nospawn: true //Without this option specified express won't be reloaded
+        }
       }
     },
 
@@ -344,7 +379,17 @@ module.exports = function (grunt) {
 
   grunt.registerTask('serve', function (target) {
     if (target === 'dist') {
-      return grunt.task.run(['build', 'connect:dist:keepalive']);
+      return grunt.task.run(['build', 'express:prod', 'open', 'express-keepalive']);
+    }
+
+    if (target === 'debug') {
+      return grunt.task.run([
+        'clean:server',
+        'bower-install',
+        'concurrent:server',
+        'autoprefixer',
+        'concurrent:debug'
+      ]);
     }
 
     grunt.task.run([
@@ -352,7 +397,8 @@ module.exports = function (grunt) {
       'bowerInstall',
       'concurrent:server',
       'autoprefixer',
-      'connect:livereload',
+      'express:dev',
+      'open',
       'watch'
     ]);
   });
