@@ -20,7 +20,7 @@ angular.module('cyanogenmodDistributionApp')
           .append('g')
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-        var parseDate = d3.time.format('%m-%d-%Y').parse;
+        var parseDate = d3.time.format.iso.parse;
 
         scope.$watch('data', function(data) {
           chart.selectAll('*').remove();
