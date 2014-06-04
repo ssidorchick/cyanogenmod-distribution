@@ -1,4 +1,4 @@
-// Generated on 2014-04-06 using generator-angular 0.8.0
+// Generated on 2014-05-17 using generator-angular-fullstack 1.4.2
 'use strict';
 
 // # Globbing
@@ -24,7 +24,6 @@ module.exports = function (grunt) {
       app: require('./bower.json').appPath || 'app',
       dist: 'dist'
     },
-
     express: {
       options: {
         port: process.env.PORT || 9000
@@ -42,19 +41,12 @@ module.exports = function (grunt) {
         }
       }
     },
-
     open: {
       server: {
         url: 'http://localhost:<%= express.options.port %>'
       }
     },
-
-    // Watches files for changes and runs tasks based on the changed files
     watch: {
-      bower: {
-        files: ['bower.json'],
-        tasks: ['bowerInstall']
-      },
       js: {
         files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
         tasks: ['newer:jshint:all'],
@@ -62,26 +54,32 @@ module.exports = function (grunt) {
           livereload: true
         }
       },
+      mochaTest: {
+        files: ['test/server/{,*/}*.js'],
+        tasks: ['env:test', 'mochaTest']
+      },
       jsTest: {
-        files: ['test/spec/{,*/}*.js'],
+        files: ['test/client/spec/{,*/}*.js'],
         tasks: ['newer:jshint:test', 'karma']
       },
-      styles: {
-        files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
-        tasks: ['newer:copy:styles', 'autoprefixer']
+      compass: {
+        files: ['<%= yeoman.app %>/styles/{,*/}*.{scss,sass}'],
+        tasks: ['compass:server', 'autoprefixer']
       },
       gruntfile: {
         files: ['Gruntfile.js']
       },
       livereload: {
-        options: {
-          livereload: '<%= connect.options.livereload %>'
-        },
         files: [
-          '<%= yeoman.app %>/{,*/}*.html',
-          '.tmp/styles/{,*/}*.css',
-          '<%= yeoman.app %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}'
-        ]
+          '<%= yeoman.app %>/views/{,*//*}*.{html,jade}',
+          '{.tmp,<%= yeoman.app %>}/styles/{,*//*}*.css',
+          '{.tmp,<%= yeoman.app %>}/scripts/{,*//*}*.js',
+          '<%= yeoman.app %>/images/{,*//*}*.{png,jpg,jpeg,gif,webp,svg}'
+        ],
+
+        options: {
+          livereload: true
+        }
       },
       express: {
         files: [
@@ -96,55 +94,26 @@ module.exports = function (grunt) {
       }
     },
 
-    // The actual grunt server settings
-    connect: {
-      options: {
-        port: 9000,
-        // Change this to '0.0.0.0' to access the server from outside.
-        hostname: 'localhost',
-        livereload: 35729
-      },
-      livereload: {
-        options: {
-          open: true,
-          base: [
-            '.tmp',
-            '<%= yeoman.app %>'
-          ]
-        }
-      },
-      test: {
-        options: {
-          port: 9001,
-          base: [
-            '.tmp',
-            'test',
-            '<%= yeoman.app %>'
-          ]
-        }
-      },
-      dist: {
-        options: {
-          base: '<%= yeoman.dist %>'
-        }
-      }
-    },
-
     // Make sure code styles are up to par and there are no obvious mistakes
     jshint: {
       options: {
         jshintrc: '.jshintrc',
         reporter: require('jshint-stylish')
       },
+      server: {
+        options: {
+          jshintrc: 'lib/.jshintrc'
+        },
+        src: [ 'lib/{,*/}*.js']
+      },
       all: [
-        'Gruntfile.js',
         '<%= yeoman.app %>/scripts/{,*/}*.js'
       ],
       test: {
         options: {
-          jshintrc: 'test/.jshintrc'
+          jshintrc: 'test/client/.jshintrc'
         },
-        src: ['test/spec/{,*/}*.js']
+        src: ['test/client/spec/{,*/}*.js']
       }
     },
 
@@ -156,7 +125,8 @@ module.exports = function (grunt) {
           src: [
             '.tmp',
             '<%= yeoman.dist %>/*',
-            '!<%= yeoman.dist %>/.git*'
+            '!<%= yeoman.dist %>/.git*',
+            '!<%= yeoman.dist %>/Procfile'
           ]
         }]
       },
@@ -178,11 +148,75 @@ module.exports = function (grunt) {
       }
     },
 
+    // Debugging with node inspector
+    'node-inspector': {
+      custom: {
+        options: {
+          'web-host': 'localhost'
+        }
+      }
+    },
+
+    // Use nodemon to run server in debug mode with an initial breakpoint
+    nodemon: {
+      debug: {
+        script: 'server.js',
+        options: {
+          nodeArgs: ['--debug-brk'],
+          env: {
+            PORT: process.env.PORT || 9000
+          },
+          callback: function (nodemon) {
+            nodemon.on('log', function (event) {
+              console.log(event.colour);
+            });
+
+            // opens browser on initial server start
+            nodemon.on('config:update', function () {
+              setTimeout(function () {
+                require('open')('http://localhost:8080/debug?port=5858');
+              }, 500);
+            });
+          }
+        }
+      }
+    },
+
     // Automatically inject Bower components into the app
-    bowerInstall: {
+    'bower-install': {
       app: {
-        src: ['<%= yeoman.app %>/index.html'],
-        ignorePath: '<%= yeoman.app %>/'
+        html: '<%= yeoman.app %>/views/index.html',
+        ignorePath: '<%= yeoman.app %>/',
+        exclude: ['bootstrap-sass']
+      }
+    },
+
+    // Compiles Sass to CSS and generates necessary files if requested
+    compass: {
+      options: {
+        sassDir: '<%= yeoman.app %>/styles',
+        cssDir: '.tmp/styles',
+        generatedImagesDir: '.tmp/images/generated',
+        imagesDir: '<%= yeoman.app %>/images',
+        javascriptsDir: '<%= yeoman.app %>/scripts',
+        fontsDir: '<%= yeoman.app %>/styles/fonts',
+        importPath: '<%= yeoman.app %>/bower_components',
+        httpImagesPath: '/images',
+        httpGeneratedImagesPath: '/images/generated',
+        httpFontsPath: '/styles/fonts',
+        relativeAssets: false,
+        assetCacheBuster: false,
+        raw: 'Sass::Script::Number.precision = 10\n'
+      },
+      dist: {
+        options: {
+          generatedImagesDir: '<%= yeoman.dist %>/public/images/generated'
+        }
+      },
+      server: {
+        options: {
+          debugInfo: true
+        }
       }
     },
 
@@ -191,10 +225,10 @@ module.exports = function (grunt) {
       dist: {
         files: {
           src: [
-            '<%= yeoman.dist %>/scripts/{,*/}*.js',
-            '<%= yeoman.dist %>/styles/{,*/}*.css',
-            '<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
-            '<%= yeoman.dist %>/styles/fonts/*'
+            '<%= yeoman.dist %>/public/scripts/{,*/}*.js',
+            '<%= yeoman.dist %>/public/styles/{,*/}*.css',
+            '<%= yeoman.dist %>/public/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
+            '<%= yeoman.dist %>/public/styles/fonts/*'
           ]
         }
       }
@@ -204,44 +238,34 @@ module.exports = function (grunt) {
     // concat, minify and revision files. Creates configurations in memory so
     // additional tasks can operate on them
     useminPrepare: {
-      html: '<%= yeoman.app %>/index.html',
+      html: ['<%= yeoman.app %>/views/index.html',
+             '<%= yeoman.app %>/views/index.jade'],
       options: {
-        dest: '<%= yeoman.dist %>',
-        flow: {
-          html: {
-            steps: {
-              js: ['concat', 'uglifyjs'],
-              css: ['cssmin']
-            },
-            post: {}
-          }
-        }
+        dest: '<%= yeoman.dist %>/public'
       }
     },
 
     // Performs rewrites based on rev and the useminPrepare configuration
     usemin: {
-      html: ['<%= yeoman.dist %>/{,*/}*.html'],
-      css: ['<%= yeoman.dist %>/styles/{,*/}*.css'],
+      html: ['<%= yeoman.dist %>/views/{,*/}*.html',
+             '<%= yeoman.dist %>/views/{,*/}*.jade'],
+      css: ['<%= yeoman.dist %>/public/styles/{,*/}*.css'],
       options: {
-        assetsDirs: ['<%= yeoman.dist %>']
+        assetsDirs: ['<%= yeoman.dist %>/public']
       }
     },
 
     // The following *-min tasks produce minified files in the dist folder
-    cssmin: {
-      options: {
-        root: '<%= yeoman.app %>'
-      }
-    },
-
     imagemin: {
+      options : {
+        cache: false
+      },
       dist: {
         files: [{
           expand: true,
           cwd: '<%= yeoman.app %>/images',
           src: '{,*/}*.{png,jpg,jpeg,gif}',
-          dest: '<%= yeoman.dist %>/images'
+          dest: '<%= yeoman.dist %>/public/images'
         }]
       }
     },
@@ -252,7 +276,7 @@ module.exports = function (grunt) {
           expand: true,
           cwd: '<%= yeoman.app %>/images',
           src: '{,*/}*.svg',
-          dest: '<%= yeoman.dist %>/images'
+          dest: '<%= yeoman.dist %>/public/images'
         }]
       }
     },
@@ -260,23 +284,22 @@ module.exports = function (grunt) {
     htmlmin: {
       dist: {
         options: {
-          collapseWhitespace: true,
-          collapseBooleanAttributes: true,
-          removeCommentsFromCDATA: true,
-          removeOptionalTags: true
+          //collapseWhitespace: true,
+          //collapseBooleanAttributes: true,
+          //removeCommentsFromCDATA: true,
+          //removeOptionalTags: true
         },
         files: [{
           expand: true,
-          cwd: '<%= yeoman.dist %>',
-          src: ['*.html', 'views/{,*/}*.html'],
-          dest: '<%= yeoman.dist %>'
+          cwd: '<%= yeoman.app %>/views',
+          src: ['*.html', 'partials/**/*.html'],
+          dest: '<%= yeoman.dist %>/views'
         }]
       }
     },
 
-    // ngmin tries to make the code safe for minification automatically by
-    // using the Angular long form for dependency injection. It doesn't work on
-    // things like resolve or inject so those have to be done manually.
+    // Allow the use of non-minsafe AngularJS files. Automatically makes it
+    // minsafe compatible so Uglify does not destroy the ng references
     ngmin: {
       dist: {
         files: [{
@@ -291,7 +314,7 @@ module.exports = function (grunt) {
     // Replace Google CDN references
     cdnify: {
       dist: {
-        html: ['<%= yeoman.dist %>/*.html']
+        html: ['<%= yeoman.dist %>/views/*.html']
       }
     },
 
@@ -302,20 +325,33 @@ module.exports = function (grunt) {
           expand: true,
           dot: true,
           cwd: '<%= yeoman.app %>',
-          dest: '<%= yeoman.dist %>',
+          dest: '<%= yeoman.dist %>/public',
           src: [
             '*.{ico,png,txt}',
             '.htaccess',
-            '*.html',
-            'views/{,*/}*.html',
+            'bower_components/**/*',
             'images/{,*/}*.{webp}',
-            'fonts/*'
+            'fonts/**/*'
           ]
         }, {
           expand: true,
+          dot: true,
+          cwd: '<%= yeoman.app %>/views',
+          dest: '<%= yeoman.dist %>/views',
+          src: '**/*.jade'
+        }, {
+          expand: true,
           cwd: '.tmp/images',
-          dest: '<%= yeoman.dist %>/images',
+          dest: '<%= yeoman.dist %>/public/images',
           src: ['generated/*']
+        }, {
+          expand: true,
+          dest: '<%= yeoman.dist %>',
+          src: [
+            'package.json',
+            'server.js',
+            'lib/**/*'
+          ]
         }]
       },
       styles: {
@@ -329,15 +365,25 @@ module.exports = function (grunt) {
     // Run some tasks in parallel to speed up the build process
     concurrent: {
       server: [
-        'copy:styles'
+        'compass:server'
       ],
       test: [
-        'copy:styles'
+        'compass'
       ],
+      debug: {
+        tasks: [
+          'nodemon',
+          'node-inspector'
+        ],
+        options: {
+          logConcurrentOutput: true
+        }
+      },
       dist: [
-        'copy:styles',
+        'compass:dist',
         'imagemin',
-        'svgmin'
+        'svgmin',
+        'htmlmin'
       ]
     },
 
@@ -373,9 +419,37 @@ module.exports = function (grunt) {
         configFile: 'karma.conf.js',
         singleRun: true
       }
+    },
+
+    mochaTest: {
+      options: {
+        reporter: 'spec'
+      },
+      src: ['test/server/**/*.js']
+    },
+
+    env: {
+      test: {
+        NODE_ENV: 'test'
+      }
     }
   });
 
+  // Used for delaying livereload until after server has restarted
+  grunt.registerTask('wait', function () {
+    grunt.log.ok('Waiting for server reload...');
+
+    var done = this.async();
+
+    setTimeout(function () {
+      grunt.log.writeln('Done waiting!');
+      done();
+    }, 500);
+  });
+
+  grunt.registerTask('express-keepalive', 'Keep grunt running', function() {
+    this.async();
+  });
 
   grunt.registerTask('serve', function (target) {
     if (target === 'dist') {
@@ -394,7 +468,7 @@ module.exports = function (grunt) {
 
     grunt.task.run([
       'clean:server',
-      'bowerInstall',
+      'bower-install',
       'concurrent:server',
       'autoprefixer',
       'express:dev',
@@ -403,22 +477,37 @@ module.exports = function (grunt) {
     ]);
   });
 
-  grunt.registerTask('server', function (target) {
+  grunt.registerTask('server', function () {
     grunt.log.warn('The `server` task has been deprecated. Use `grunt serve` to start a server.');
-    grunt.task.run(['serve:' + target]);
+    grunt.task.run(['serve']);
   });
 
-  grunt.registerTask('test', [
-    'clean:server',
-    'concurrent:test',
-    'autoprefixer',
-    'connect:test',
-    'karma'
-  ]);
+  grunt.registerTask('test', function(target) {
+    if (target === 'server') {
+      return grunt.task.run([
+        'env:test',
+        'mochaTest'
+      ]);
+    }
+
+    else if (target === 'client') {
+      return grunt.task.run([
+        'clean:server',
+        'concurrent:test',
+        'autoprefixer',
+        'karma'
+      ]);
+    }
+
+    else grunt.task.run([
+      'test:server',
+      'test:client'
+    ]);
+  });
 
   grunt.registerTask('build', [
     'clean:dist',
-    'bowerInstall',
+    'bower-install',
     'useminPrepare',
     'concurrent:dist',
     'autoprefixer',
@@ -429,8 +518,7 @@ module.exports = function (grunt) {
     'cssmin',
     'uglify',
     'rev',
-    'usemin',
-    'htmlmin'
+    'usemin'
   ]);
 
   grunt.registerTask('default', [
