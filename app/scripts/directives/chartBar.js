@@ -10,7 +10,8 @@ angular.module('cyanogenmodDistributionApp')
       link: function(scope, element, attrs) {
         var margin = { top: 50, right: 0, bottom: 90, left: 60 },
             width = element.width() - margin.left - margin.right,
-            height = 400;
+            height = 400,
+            formatNumber = d3.format(',');
 
         var chart = d3.select(element[0])
           .append('svg')
@@ -53,15 +54,8 @@ angular.module('cyanogenmodDistributionApp')
               .attr('height', function(d) { return height - y(d.downloads); })
               .attr('width', x.rangeBand());
 
-          bar.append('text')
-              .style('text-anchor', 'end')
-              .attr('x', x.rangeBand() / 2)
-              .attr('y', function(d) { return y(d.downloads) + 3; })
-              .attr('transform', function(d) {
-                return 'rotate(90 ' + (x.rangeBand() / 2) + ',' + (y(d.downloads) - 3) + ')';
-              })
-              .attr('dy', '-.1em')
-              .text(function(d) { return d.downloads; });
+          bar.append('title')
+              .text(function(d) { return formatNumber(d.downloads); });
 
           chart.append('g')
               .attr('class', 'x axis')
