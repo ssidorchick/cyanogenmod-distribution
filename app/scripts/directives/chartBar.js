@@ -54,16 +54,6 @@ angular.module('cyanogenmodDistributionApp')
               .attr('height', function(d) { return height - y(d.downloads); })
               .attr('width', x.rangeBand());
 
-          bar.append('text')
-              .style('text-anchor', 'end')
-              .attr('x', x.rangeBand() / 2)
-              .attr('y', function(d) { return y(d.downloads) + 3; })
-              .attr('transform', function(d) {
-                return 'rotate(90 ' + (x.rangeBand() / 2) + ',' + (y(d.downloads) - 3) + ')';
-              })
-              .attr('dy', '-.1em')
-              .text(function(d) { return d.downloads; });
-
           bar.append('title')
               .text(function(d) { return formatNumber(d.downloads); });
 
