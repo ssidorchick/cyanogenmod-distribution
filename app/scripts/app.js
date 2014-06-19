@@ -1,4 +1,4 @@
 'use strict';
 
 angular
-  .module('cyanogenmodDistributionApp', []);
+  .module('cyanogenmodDistributionApp', ['ui.slider']);

@@ -4,11 +4,7 @@ angular.module('cyanogenmodDistributionApp')
   .controller('MainCtrl', function ($scope, $http, $q) {
     $http.get('api/versions')
       .success(function(data) {
-        var latest = _.last(data),
-            filtered = _.filter(latest.statistics,
-              function(build) { return build.downloads > 10000; });
-
-        $scope.barData = filtered;
+        $scope.barData = _.last(data).statistics;
 
         var lineData = _.chain(data)
           .map(function(d) {
