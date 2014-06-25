@@ -53,7 +53,7 @@ angular.module('cyanogenmodDistributionApp')
               .attr('width', optimalWidth + margin.left + margin.right);
 
           var x = d3.scale.ordinal()
-              .rangeRoundBands([0, optimalWidth], 0.1, 0.1)
+              .rangeBands([0, optimalWidth], 0.1, 0.2)
               .domain(data.map(function(d) { return d.name; }));
 
           var y = d3.scale.linear()
