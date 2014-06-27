@@ -26,16 +26,15 @@ angular.module('cyanogenmodDistributionApp')
           value: [0.00, 1.00]
         };
 
-        scope.$watch('slider.value', function(value) {
-          var data = scope.data,
-              start = Math.floor(data.length * value[0]),
-              end = Math.ceil(data.length * value[1]);
-
-          var filtered = data.slice(start, end);
-          updateChart(filtered);
+        scope.$watch('slider.value', function() {
+          updateChart(scope.data);
         });
 
         scope.$watch('data', function(data) {
+          var optimalAmount = Math.floor(width / barMinWidth),
+              sliderEnd = optimalAmount / data.length;
+
+          scope.slider.value[1] = sliderEnd;
           updateChart(data);
         });
 
@@ -45,6 +44,12 @@ angular.module('cyanogenmodDistributionApp')
           if (!data) {
             return;
           }
+
+          var sliderValue = scope.slider.value,
+              start = Math.floor(data.length * sliderValue[0]),
+              end = Math.ceil(data.length * sliderValue[1]);
+
+          data = data.slice(start, end);
 
           var optimalWidth = Math.max(data.length * barMinWidth, width);
 
