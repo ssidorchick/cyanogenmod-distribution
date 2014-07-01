@@ -31,6 +31,10 @@ angular.module('cyanogenmodDistributionApp')
         });
 
         scope.$watch('data', function(data) {
+          if (!data) {
+            return;
+          }
+
           var optimalAmount = Math.floor(width / barMinWidth),
               sliderEnd = optimalAmount / data.length;
 
@@ -40,10 +44,6 @@ angular.module('cyanogenmodDistributionApp')
 
         var updateChart = function(data) {
           chart.selectAll('*').remove();
-
-          if (!data) {
-            return;
-          }
 
           var sliderValue = scope.slider.value,
               start = Math.floor(data.length * sliderValue[0]),
