@@ -13,7 +13,9 @@ angular.module('cyanogenmodDistributionApp')
             width = element.width() - margin.left - margin.right,
             height = 400,
             barMinWidth = 20,
-            formatNumber = d3.format(',');
+            formatNumber = d3.format(','),
+            data,
+            range;
 
         var chart = d3.select(element[0])
           .select('svg')
@@ -26,11 +28,17 @@ angular.module('cyanogenmodDistributionApp')
           value: [0.00, 1.00]
         };
 
-        scope.$watch('slider.value', function() {
-          updateChart(scope.data);
+        scope.$watch('slider.value', function(value) {
+          range = value;
+          if (!data) {
+            return;
+          }
+
+          updateChart(data, range);
         });
 
-        scope.$watch('data', function(data) {
+        scope.$watch('data', function(value) {
+          data = value;
           if (!data) {
             return;
           }
@@ -39,15 +47,37 @@ angular.module('cyanogenmodDistributionApp')
               sliderEnd = optimalAmount / data.length;
 
           scope.slider.value[1] = sliderEnd;
-          updateChart(data);
+          range = scope.slider.value;
+
+          updateChart(data, range);
         });
 
-        var updateChart = function(data) {
+        scope.sortByDownloads = function() {
+          data = _.sortBy(data, function(d) { return d.downloads; }).reverse();
+
+          updateChart(data, range);
+        };
+
+        scope.sortByVersion = function() {
+          data = _.chain(scope.data)
+            .groupBy(function(d) { return d.version; })
+            .map(function(group, key) { return { key: +key, group: group }; })
+            .sortBy(function(d) { return d.key ? d.key : -1; })
+            .reverse()
+            .map(function(d) {
+              return _.sortBy(d.group, function(d) { return d.downloads; }).reverse();
+            })
+            .flatten()
+            .value();
+
+          updateChart(data, range);
+        };
+
+        var updateChart = function(data, range) {
           chart.selectAll('*').remove();
 
-          var sliderValue = scope.slider.value,
-              start = Math.floor(data.length * sliderValue[0]),
-              end = Math.ceil(data.length * sliderValue[1]);
+          var start = Math.floor(data.length * range[0]),
+              end = Math.ceil(data.length * range[1]);
 
           data = data.slice(start, end);
 

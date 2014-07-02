@@ -2,6 +2,26 @@ chart-bar {
   display: block;
 }
 
+.chart-controls {
+  display: flex;
+  margin: 5px 0;
+}
+
+.slider-container {
+  display: flex;
+  align-self: center;
+  flex: 1;
+  margin-left: 8px;
+}
+
+.slider {
+  flex: 1;
+}
+
+.sort-control {
+  margin-left: 30px;
+}
+
 .chart-container {
   overflow-x: auto;
 

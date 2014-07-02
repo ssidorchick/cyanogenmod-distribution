@@ -1,9 +1,20 @@
-<div
-  ui-slider="{range: true}"
-  use-decimals
-  min="0.00" max="1.00" step="0.01"
-  ng-model="slider.value">
+<div class="chart-controls">
+  <div class="slider-container">
+    <div
+      class="slider"
+      ui-slider="{range: true}"
+      use-decimals
+      min="0.00" max="1.00" step="0.01"
+      ng-model="slider.value">
+    </div>
+  </div>
+
+  <div class="sort-control">
+    <button class="btn btn-default" ng-show="sortType" ng-click="sortByDownloads(); sortType=!sortType">Sort by Downloads</button>
+    <button class="btn btn-default" ng-hide="sortType" ng-click="sortByVersion(); sortType=!sortType">Sort by Version</button>
+  </div>
 </div>
+
 <div class="chart-container">
   <svg class="chart" />
 </div>
