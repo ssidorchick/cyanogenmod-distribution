@@ -27,14 +27,6 @@ chart-bar {
   background-attachment: local, local, scroll, scroll;
 }
 
-.chart rect {
-  fill: steelblue;
-}
-
-.chart rect:hover {
-  fill: brown;
-}
-
 .chart text {
   fill: black;
   font: 10px sans-serif;

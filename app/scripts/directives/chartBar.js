@@ -78,10 +78,13 @@ angular.module('cyanogenmodDistributionApp')
             .enter().append('g')
               .attr('transform', function(d) { return 'translate(' + (x(d.name) - 0) + ', 0)'; });
 
+          var colorScale = getColorScale(data);
+
           bar.append('rect')
               .attr('y', function(d) { return y(d.downloads); })
               .attr('height', function(d) { return height - y(d.downloads); })
-              .attr('width', x.rangeBand());
+              .attr('width', x.rangeBand())
+              .style('fill', function(d) { return colorScale(d.version); });
 
           bar.append('title')
               .text(function(d) { return formatNumber(d.downloads); });
@@ -99,6 +102,28 @@ angular.module('cyanogenmodDistributionApp')
           chart.append('g')
               .attr('class', 'y axis')
               .call(yAxis);
+        };
+
+        var getColorScale = function(data) {
+          var versions = _.chain(data)
+            .map(function(d) { return d.version; })
+            .compact()
+            .uniq()
+            .sortBy()
+            .value();
+          var color = d3.lab('#4682B4');
+          var colorScale = d3.scale.linear()
+              .domain([_.min(versions) * 0.9, _.max(versions) * 1.1])
+              .range([color.brighter(2), color.darker(2)])
+              .interpolate(d3.interpolateLab);
+
+          return function(version) {
+            if (version) {
+              return colorScale(version);
+            } else {
+              return '#808080';
+            }
+          };
         };
       }
     };
