@@ -9,9 +9,10 @@ angular.module('cyanogenmodDistributionApp')
       },
       templateUrl: 'partials/chart-bar',
       link: function(scope, element, attrs) {
-        var margin = { top: 50, right: 0, bottom: 90, left: 60 },
+        var margin = { top: 0, right: 0, bottom: 90, left: 60 },
             width = element.width() - margin.left - margin.right,
-            height = 400,
+            chartContainer = $('.chart-container', element),
+            height = chartContainer.height() - margin.top - margin.bottom,
             barMinWidth = 20,
             formatNumber = d3.format(','),
             data,
@@ -19,10 +20,16 @@ angular.module('cyanogenmodDistributionApp')
 
         var chart = d3.select(element[0])
           .select('svg')
-            .attr('width', width + margin.left + margin.right)
-            .attr('height', height + margin.top + margin.bottom)
           .append('g')
             .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+        var orientationChangeHandler = _.debounce(function() {
+          width = element.width() - margin.left - margin.right;
+          height = chartContainer.height() - margin.top - margin.bottom;
+          updateChart(scope.data, scope.slider.value);
+        }, 300);
+        $(window).on('orientationchange', orientationChangeHandler);
+
 
         scope.slider = {
           value: [0.00, 1.00]
@@ -85,7 +92,8 @@ angular.module('cyanogenmodDistributionApp')
 
           d3.select(element[0])
             .select('svg')
-              .attr('width', optimalWidth + margin.left + margin.right);
+              .attr('width', optimalWidth + margin.left + margin.right)
+              .attr('height', height + margin.top + margin.bottom);
 
           var x = d3.scale.ordinal()
               .rangeBands([0, optimalWidth], 0.1, 0.2)

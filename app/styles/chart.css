@@ -1,5 +1,7 @@
 chart-bar {
-  display: block;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-controls {
@@ -23,7 +25,10 @@ chart-bar {
 }
 
 .chart-container {
+  flex: 1;
+  margin-top: 50px;
   overflow-x: auto;
+  overflow-y: hidden;
 
   background:
     /* Shadow covers */
@@ -45,6 +50,12 @@ chart-bar {
   background-color: white;
   background-size: 40px 100%, 40px 100%, 14px 100%, 14px 100%;
   background-attachment: local, local, scroll, scroll;
+}
+
+@media (max-height: 400px) {
+  .chart-container {
+    margin-top: 10px;
+  }
 }
 
 .chart text {

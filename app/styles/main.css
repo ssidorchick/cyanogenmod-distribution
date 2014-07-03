@@ -1,7 +1,30 @@
+html {
+  height: 100%;
+}
+
 /* Space out content a bit */
 body {
+  display: flex;
   padding-top: 20px;
   padding-bottom: 20px;
+  height: 100%;
+}
+
+@media (max-height: 400px) {
+  body {
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+}
+
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  flex: 0 0 auto;
 }
 
 /* Everything but the jumbotron gets side spacing for mobile first views */
@@ -10,6 +33,22 @@ body {
 .footer {
   padding-left: 15px;
   padding-right: 15px;
+}
+
+@media (max-width: 356px) {
+  .header {
+    padding: 0;
+  }
+
+  .header h3 {
+    font-size: 23px;
+  }
+}
+
+@media (max-height: 400px) {
+  .header {
+    display: none;
+  }
 }
 
 /* Custom page header */
