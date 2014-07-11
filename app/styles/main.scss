@@ -19,6 +19,16 @@ body {
   }
 }
 
+.github-fork-ribbon-wrapper {
+  @media (max-width: 900px) {
+    display: none;
+  }
+}
+
+.github-fork-ribbon {
+  background-color: #000;
+}
+
 .container {
   flex: 1;
   display: flex;
