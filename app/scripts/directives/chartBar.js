@@ -5,7 +5,8 @@ angular.module('cyanogenmodDistributionApp')
     return {
       restrict: 'E',
       scope: {
-        data: '='
+        data: '=',
+        sort: '&'
       },
       templateUrl: 'partials/chart-bar',
       link: function(scope, element, attrs) {
@@ -58,27 +59,6 @@ angular.module('cyanogenmodDistributionApp')
 
           updateChart(data, range);
         });
-
-        scope.sortByDownloads = function() {
-          data = _.sortBy(data, function(d) { return d.downloads; }).reverse();
-
-          updateChart(data, range);
-        };
-
-        scope.sortByVersion = function() {
-          data = _.chain(scope.data)
-            .groupBy(function(d) { return d.version; })
-            .map(function(group, key) { return { key: +key, group: group }; })
-            .sortBy(function(d) { return d.key ? d.key : -1; })
-            .reverse()
-            .map(function(d) {
-              return _.sortBy(d.group, function(d) { return d.downloads; }).reverse();
-            })
-            .flatten()
-            .value();
-
-          updateChart(data, range);
-        };
 
         var updateChart = function(data, range) {
           chart.selectAll('*').remove();

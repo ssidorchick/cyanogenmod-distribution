@@ -10,8 +10,8 @@
   </div>
 
   <div class="sort-control">
-    <button class="btn btn-default" ng-show="sortType" ng-click="sortByDownloads(); sortType=!sortType">Sort by Downloads</button>
-    <button class="btn btn-default" ng-hide="sortType" ng-click="sortByVersion(); sortType=!sortType">Sort by Version</button>
+    <button class="btn btn-default" ng-show="sortType" ng-click="sort(); sortType=!sortType">Sort by Downloads</button>
+    <button class="btn btn-default" ng-hide="sortType" ng-click="sort({ byVersion:true }); sortType=!sortType">Sort by Version</button>
   </div>
 </div>
 

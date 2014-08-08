@@ -8,7 +8,7 @@
  * Service in the cyanogenmodDistributionApp.
  */
 angular.module('cyanogenmodDistributionApp')
-  .service('Statistics', function Statistics($http) {
+  .service('Statistics', function Statistics($http, $q) {
 
     var parseVersion = function(data) {
       var versionRegex = /(\d+)(\.(\d+)(\.(\d+))?)?/;
@@ -28,11 +28,27 @@ angular.module('cyanogenmodDistributionApp')
       return data;
     };
 
-    this.getDownloads = function() {
-      return $http.get('api/versions')
+    var sortByVersion = function(data) {
+      return _.chain(data)
+        .groupBy(function(d) { return d.version; })
+        .map(function(group, key) { return { key: +key, group: group }; })
+        .sortBy(function(d) { return d.key ? d.key : -1; })
+        .reverse()
+        .map(function(d) {
+          return _.sortBy(d.group, function(d) { return d.downloads; }).reverse();
+        })
+        .flatten()
+        .value();
+    };
+
+    this.getDownloads = function(sort) {
+      return $http.get('api/versions', { cache: true })
         .then(function(response) {
           return _.last(response.data).statistics;
         })
-        .then(parseVersion);
+        .then(parseVersion)
+        .then(function(data) {
+          return sort ? sortByVersion(data) : data;
+        });
     };
   });
